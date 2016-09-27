@@ -106,11 +106,12 @@ shinyServer(function(input, output) {
     isolate({simres <- ssplan()})
     div(span(h5("Simulation Results:"),style="color:darkred"),
         p("Expected sample size:",round(simres$essav,2)),
-        p("True positive rate:",round(simres$trueposav,2)),
+        p("True positive rate (Expected sensitivity):",round(simres$trueposav,2)),
         p("False negative rate:",round(simres$falsenegav,2)),
+        p("True negative rate (Expected specificity):",round(simres$truenegav,2)),
         p("False positive rate:",round(simres$falseposav,2)),
-        p("True negative rate:",round(simres$truenegav,2)),
-        p("Expected number of discoveries:",round(simres$expDiscovery,2)),
+        #p("Expected number of discoveries:",round(simres$expDiscovery,2)),   ## no need as per Rich, Sep-26-2016
+        p("Expected number of indeterminate strata:",round(simres$indeterav,2)),
         p("Probability of no false positives when all strata are negative:", round(simres$probNoFPallNeg,2)),
         div(HTML('<HR SIZE=5 WIDTH=\"100%\" NOSHADE>'),
             p(span(em("Analyzed on:",date()),style="color:blue"))

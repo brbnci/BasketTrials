@@ -17,9 +17,10 @@ library(shiny)
 ######
 
 shinyUI(pageWithSidebar(
-  headerPanel(list(HTML('<A href="http://www.cancer.gov" target="_blank"><img src="nciLogo-rev.jpg", style="float:left"></A>'),
-                      span(h1("Biometric Research Branch", align = "center"),style="color:#00aaff"),
-                      span(h4("Design, Monitoring and Analysis of Bayesian Basket Discovery Trials", align="center"))),
+  headerPanel(list(HTML('<A href="http://www.cancer.gov" target="_blank"><img src="nci_new.PNG", style="float:center"></A>'),
+                   HTML('<A href="http://brb.nci.nih.gov" target="_blank"><img src="brp.PNG", style="float:center"></A>'),
+                      #span(h1("Biometric Research Branch", align = "center"),style="color:#00aaff"),
+                      span(h2("Design, Monitoring and Analysis of Bayesian Basket Discovery Trials", align="center"))),
               "Basket Trials"),
   sidebarPanel(
     wellPanel(
@@ -117,7 +118,7 @@ shinyUI(pageWithSidebar(
                 from <A href="http://www.rstudio.com/shiny" target="_blank">RStudio</A>.</p>'),
                 HTML('<p>For questions and comments on this application, please contact 
                 <a href="mailto:rsimon@mail.nih.gov">Dr. Richard Simon</a> 
-                at the <a href="http://brb.nci.nih.gov" target="_blank">Biometric Research Branch</a></p>'),
+                at the <a href="http://brb.nci.nih.gov" target="_blank">Biometric Research Program</a></p>'),
               value=1),id="panel1")
       ),
     

@@ -11,6 +11,12 @@
 ###               Probability values move at intervals of 0.01 (gamma, lambda, p_lo, p_hi).
 ###               8-Oct-2015: Modified the matrixInput function from tableinput.R 
 ###               in the shinyIncubator 0.2.2 package
+### Version 5, Sep 2016: Corrected true positive and negative calculations. Sensitivity and specificity 
+###               are just the true positive and true negative rate respectively.
+###               Also calculate and output the expected number of indeterminate strata
+### Version 6, Oct 2016: Used the new fast formulae for calculation pf posterior probabilities 
+###               (after verification and comparing with results of existing approach), increased max 
+###               number of strata to 12, and improving formatting of post prob output table.
 ######
 
 ###### Load required libraries
@@ -57,11 +63,11 @@ shinyServer(function(input, output) {
     n <- nr[,2]
     r <- nr[,3]
  
-    postprob <- find_postk(lambda, gamma, r, n, plo, phi, kk)
+    postprob <- find_postk(lambda, gamma, r, n, plo, phi)
     rown <- sapply(1:kk, function(i) {
       paste0("Strata_", i)
     })
-    data.frame(Number_Evaluable=n, Number_Responses=r, Posterior_Prob_Activity=postprob, row.names=rown) 
+    data.frame(Strata=rown, Number_Evaluable=n, Number_Responses=r, Posterior_Prob_Activity=postprob) 
     }
   })
   
@@ -69,7 +75,7 @@ shinyServer(function(input, output) {
   output$displayPostprob <- renderTable({
     res <- postk()
     data.frame(res)
-  },digits=c(0,0,0,3))
+  },digits=3, striped=TRUE, bordered=TRUE)
   
   
   ### Simulations for sample size planning

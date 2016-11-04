@@ -26,6 +26,9 @@
 ### Version 5, Sep 2016: Corrected true positive and negative calculations. Sensitivity and specificity 
 ###               are just the true positive and true negative rate respectively.
 ###               Also calculate and output the expected number of indeterminate strata
+### Version 6, Oct 2016: Used the new fast formulae for calculation pf posterior probabilities 
+###               (after verification and comparing with results of existing approach), increased max 
+###               number of strata to 12, and improving formatting of post prob output table.
 ##########################################
 
 number2binary <- function(number,noBits) {
@@ -35,39 +38,27 @@ number2binary <- function(number,noBits) {
 }
 
 
-find_postk <- function(lambda, gamma, r, n, plo, phi, kk) {
-  pnull <- 1 - gamma
-  nstate <- 2^kk
-  binvec <- 0 * seq(nstate)
-  prior <- 0 * seq(nstate)
-  for (k in 0:(nstate - 1)) {
-    binvec <- number2binary(k, kk)
-    kp <- k + 1
-    prior[kp] <- (1 - lambda) * (gamma^sum(binvec)) * (1 - gamma)^(sum(1 - binvec))
-  }
-  prior[1] <- prior[1] + lambda * pnull
-  prior[nstate] <- prior[nstate] + lambda * (1 - pnull)
-  loglik <- 0 * seq(nstate)
-  for (k in 0:(nstate - 1)) {
-    kp <- k + 1
-    binvec <- number2binary(k, kk)
-    loglik[kp] <- sum(r * log(phi * binvec + plo * (1 - binvec))) + 
-    sum((n - r) * log((1 - phi) * binvec + (1 - plo) * (1 - binvec)))
-  }
-  post <- 0 * seq(nstate)
-  post <- prior * exp(loglik)
-  post <- post/sum(post)
-  postk <- 0 * seq(kk)
-  for (j in 0:(nstate - 1)) {
-    binvec <- number2binary(j, kk)
-    for (k in 1:kk) {
-      if (binvec[k] == 1) {
-        postk[k] <- postk[k] + post[j + 1]
-      }
-    }
-  }
+find_postk <- function(lambda, gamma, r, n, plo, phi){
+  ## P0
+  P0.num <- (1-gamma)*prod(dbinom(r, n, plo))
+  P0.deno <- gamma*prod(dbinom(r, n, phi))
+  P0 <- 1/(1 + (P0.num/P0.deno))
+  
+  ## Pk_ind
+  Pk.num <- gamma*dbinom(r, n, phi)
+  Pk.deno <- gamma*dbinom(r, n, phi) + (1-gamma)*dbinom(r, n, plo)
+  Pk <- Pk.num/Pk.deno
+  
+  ## P[pi = 1|data]
+  pi1.num <- (1-lambda)*prod(gamma*dbinom(r, n, phi) + (1-gamma)*dbinom(r, n, plo))
+  pi1.deno <- lambda*(gamma*prod(dbinom(r, n, phi)) + (1-gamma)*prod(dbinom(r, n, plo)))
+  pi1 <- 1/(1+(pi1.num/pi1.deno))
+  
+  ## Finally, post prob of activity in each strata
+  postk <- P0*pi1 + Pk*(1 - pi1)
   postk
 }
+
 
 samplesize <- function(lambda, gamma, plo, phi, kk, nrep, ntot, nblock, prev=rep(1,kk), delta) {
   pnull <- 1 - gamma
@@ -97,7 +88,7 @@ samplesize <- function(lambda, gamma, plo, phi, kk, nrep, ntot, nblock, prev=rep
         r <- rbinom(kk, n, pval) 	### simulate number of responses in each strata (shd it be kknow?) (kk also ok..)
         r[activevec==0] <- 0
         rcum <- rcum + r     
-        val <- find_postk(lambda, gamma, rcum, ncum, plo, phi, kk)    ###(shd it be kknow?) (kknow gives NAs results)
+        val <- find_postk(lambda, gamma, rcum, ncum, plo, phi)    ###(shd it be kknow?) (kknow gives NAs results)
         ### Thats bcoz, the prior is still set as if there are kk strata
         ### I think kk is ok, bcoz only accrual to the strata is stopped, the parameters set initially are still the same
         activevecnew <- activevec * (val < delta) * (val > 1-delta)	### strata getting closed (> d or < 1-d) will become 0

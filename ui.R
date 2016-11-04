@@ -14,6 +14,12 @@ library(shiny)
 ###               Probability values move at intervals of 0.01 (gamma, lambda, p_lo, p_hi).
 ###               8-Oct-2015: Modified the matrixInput function from tableinput.R 
 ###               in the shinyIncubator 0.2.2 package
+### Version 5, Sep 2016: Corrected true positive and negative calculations. Sensitivity and specificity 
+###               are just the true positive and true negative rate respectively.
+###               Also calculate and output the expected number of indeterminate strata
+### Version 6, Oct 2016: Used the new fast formulae for calculation pf posterior probabilities 
+###               (after verification and comparing with results of existing approach), increased max 
+###               number of strata to 12, and improving formatting of post prob output table.
 ######
 
 shinyUI(pageWithSidebar(
@@ -35,7 +41,7 @@ shinyUI(pageWithSidebar(
         wellPanel(
           p(strong("Change/Set Parameters for Prior Probability:")),
           sliderInput("kk", p("Number of Strata"),
-                      min=1, max=8, value = 3, step = 1),
+                      min=1, max=12, value = 3, step = 1),
           br(),
           sliderInput("lambda", p("Probability that activity is correlated among strata (lambda)"),
                       min=0, max=1, value = 0.5, step = 0.01),    
